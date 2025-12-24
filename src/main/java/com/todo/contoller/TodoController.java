@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.todo.dto.TodoDto;
 import com.todo.service.TodoService;
 
-import lombok.Getter;
-
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api/todos")

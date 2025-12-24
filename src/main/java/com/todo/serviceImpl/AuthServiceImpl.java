@@ -10,10 +10,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.todo.dto.LoginDto;
+import com.todo.dto.LoginResponseDto;
 import com.todo.dto.RegisterDto;
 import com.todo.entity.Role;
 import com.todo.entity.User;
@@ -45,7 +47,7 @@ public class AuthServiceImpl implements AuthService{
 		}
 		
 		if(userRepository.existsByEmail(registerDto.getEmail())) {
-			throw new TodoApiException(HttpStatus.BAD_REQUEST,"Username is already exists");
+			throw new TodoApiException(HttpStatus.BAD_REQUEST,"Email is already exists");
 		}
 		
 		User user = new User();
@@ -77,7 +79,8 @@ public class AuthServiceImpl implements AuthService{
 	}
 
 	@Override
-	public String login(LoginDto loginDto) {
+	public LoginResponseDto login(LoginDto loginDto) {
+		System.out.println("Login Credentils===>"+loginDto.getUsernameOrEmail() + "," +loginDto.getPassword());
 	    try {
 	        Authentication authentication = authenticationManager.authenticate(
 	                new UsernamePasswordAuthenticationToken(
@@ -87,8 +90,15 @@ public class AuthServiceImpl implements AuthService{
 	        );
 
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
-	        return "User logged-in successfully!";
-	        
+	       
+	        // Get logged-in user details
+	        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+		    String role = userDetails.getAuthorities()
+			                    .iterator()
+			                    .next()
+			                    .getAuthority();
+			
+			return new LoginResponseDto(userDetails.getUsername(),role);	        
 	    } catch (AuthenticationException ex) {
 	        throw new TodoApiException(
 	                HttpStatus.UNAUTHORIZED,
