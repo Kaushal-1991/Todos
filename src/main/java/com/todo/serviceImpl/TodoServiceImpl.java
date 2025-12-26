@@ -5,11 +5,13 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.todo.dto.TodoDto;
 import com.todo.entity.Todo;
 import com.todo.exception.ResourceNotFoundException;
+import com.todo.exception.TodoApiException;
 import com.todo.repository.TodoRepository;
 import com.todo.service.TodoService;
 
@@ -37,13 +39,13 @@ public class TodoServiceImpl implements TodoService {
 
 	@Override
 	public TodoDto getTodo(Long id) {
-		Todo todo = todoRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Todo is not found with id:-"+id));
+		Todo todo = todoRepository.findById(id).orElseThrow(() -> new TodoApiException(HttpStatus.NOT_FOUND,"Data Not Found"));
 		return modelMapper.map(todo, TodoDto.class);
 	}
 
 	@Override
 	public TodoDto updateDto(Long id, TodoDto dto) {
-		Todo todo = todoRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Todo is not found with id:-"+id));
+		Todo todo = todoRepository.findById(id).orElseThrow(() -> new TodoApiException(HttpStatus.NOT_FOUND,"Data Not Found"));
 		
 		todo.setTitle(dto.getTitle());
 		todo.setDescription(dto.getDescription());
@@ -57,7 +59,7 @@ public class TodoServiceImpl implements TodoService {
 	@Override
 	public void deleteTodo(Long id) {
 		// TODO Auto-generated method stub
-		Todo todo = todoRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Todo is not found with id:-"+id));
+		Todo todo = todoRepository.findById(id).orElseThrow(() -> new TodoApiException(HttpStatus.NOT_FOUND,"Data Not Found"));
 		todoRepository.delete(todo);
 	}
 	

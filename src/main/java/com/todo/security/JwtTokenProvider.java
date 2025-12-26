@@ -1,7 +1,6 @@
 package com.todo.security;
 
 import java.security.Key;
-import java.security.Signature;
 import java.util.Date;
 
 import javax.crypto.SecretKey;

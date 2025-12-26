@@ -14,14 +14,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.todo.dto.JwtAuthResponseDto;
 import com.todo.dto.LoginDto;
-import com.todo.dto.LoginResponseDto;
 import com.todo.dto.RegisterDto;
 import com.todo.entity.Role;
 import com.todo.entity.User;
 import com.todo.exception.TodoApiException;
 import com.todo.repository.RoleRepository;
 import com.todo.repository.UserRepository;
+import com.todo.security.JwtTokenProvider;
 import com.todo.service.AuthService;
 
 @Service
@@ -38,6 +39,9 @@ public class AuthServiceImpl implements AuthService{
 	
 	@Autowired
 	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private JwtTokenProvider jwtTokenProvider;
 
 	@Override
 	public String register(RegisterDto registerDto) {
@@ -79,7 +83,7 @@ public class AuthServiceImpl implements AuthService{
 	}
 
 	@Override
-	public LoginResponseDto login(LoginDto loginDto) {
+	public JwtAuthResponseDto login(LoginDto loginDto) {
 		System.out.println("Login Credentils===>"+loginDto.getUsernameOrEmail() + "," +loginDto.getPassword());
 	    try {
 	        Authentication authentication = authenticationManager.authenticate(
@@ -97,8 +101,12 @@ public class AuthServiceImpl implements AuthService{
 			                    .iterator()
 			                    .next()
 			                    .getAuthority();
-			
-			return new LoginResponseDto(userDetails.getUsername(),role);	        
+		    
+		    String token = jwtTokenProvider.genrateToken(authentication); 
+		    
+		    userRepository.findByUsernameOrEmail(loginDto.getUsernameOrEmail(), loginDto.getUsernameOrEmail());		
+		    
+			return token;	        
 	    } catch (AuthenticationException ex) {
 	        throw new TodoApiException(
 	                HttpStatus.UNAUTHORIZED,
