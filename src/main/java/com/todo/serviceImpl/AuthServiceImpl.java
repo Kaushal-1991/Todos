@@ -1,6 +1,7 @@
 package com.todo.serviceImpl;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,9 +105,27 @@ public class AuthServiceImpl implements AuthService{
 		    
 		    String token = jwtTokenProvider.genrateToken(authentication); 
 		    
-		    userRepository.findByUsernameOrEmail(loginDto.getUsernameOrEmail(), loginDto.getUsernameOrEmail());		
+		    Optional<User> userOptional =  userRepository.findByUsernameOrEmail(loginDto.getUsernameOrEmail(), loginDto.getUsernameOrEmail());
+		  
+//		    String rolePresent = null;
+//		    if(userOptional.isPresent()) {
+//				  User user = userOptional.get();
+//				  System.out.println("===user==>"+user);
+//				  Optional<Role> userRole = user.getUserRole().stream().findFirst();
+//				  System.out.println("===userRole==>"+userRole);
+//				  if(userRole.isPresent()) {
+//					  Role roleIs = userRole.get();
+//					  System.out.println("===roleIs==>"+roleIs);
+//					  rolePresent = roleIs.getName();
+//					  System.out.println("===rolePresent==>"+rolePresent);
+//				  }
+//			 }
 		    
-			return token;	        
+		    JwtAuthResponseDto authResponseDto = new JwtAuthResponseDto();
+		    authResponseDto.setAccessToken(token);
+		    authResponseDto.setRole(role);
+		    
+			return authResponseDto;	        
 	    } catch (AuthenticationException ex) {
 	        throw new TodoApiException(
 	                HttpStatus.UNAUTHORIZED,
